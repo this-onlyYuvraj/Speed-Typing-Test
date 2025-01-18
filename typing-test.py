@@ -7,28 +7,57 @@ import random
 def start_screen(stdscr):
     stdscr.clear()
     stdscr.addstr("Welcome to the speed Typing test", curses.color_pair(3))
-    stdscr.addstr("\nPress any key to begin")
+    stdscr.addstr("\nPress any key to begin\n")
     stdscr.refresh()
     stdscr.getkey()
 
 
 def display_text(stdscr, target, current, wpm=0):
     stdscr.addstr(target)
-    stdscr.addstr(1,0,f"WPM: {wpm}", curses.color_pair(3))
+    stdscr.addstr(5,0,f"WPM: {wpm}", curses.color_pair(3))
     for i,char in enumerate(current):
         correct_char = target[i]
         color = curses.color_pair(1)
         if char != correct_char:
-             color = curses.color_pair(2)
-        stdscr.addstr(0,i,char,color)
+             color = curses.color_pair(2)     
 
-def load_text():
-     with open('text.txt','r') as f:
-          lines = f.readlines()
-          return random.choice(lines).strip()
+        row = i // curses.COLS # COLS give the number of column(text) present on screen. This gives the number of complete rows
+        col = i % curses.COLS # this ensures that when line ends it starts with 0 again.
+        stdscr.addstr(row, col, char, color) 
+
+def load_text(key,stdscr):
+    if ord(key) == 49: 
+        with open('easy-text.txt','r') as f:
+             lines = f.readlines()
+             return random.choice(lines).strip()
+    elif ord(key) == 50:
+          with open('medium-text.txt','r') as f:
+             lines = f.readlines()
+             return random.choice(lines).strip()
+    elif ord(key) == 51:
+          with open('hard-text.txt','r') as f:
+             lines = f.readlines()
+             return random.choice(lines).strip()
+    elif ord(key) == 52 :
+          with open('advance-text.txt','r') as f:
+             lines = f.readlines()
+             return random.choice(lines).strip()
+    else:
+         return stdscr.addstr('enter a valid choice\n')
+
+     
+def difficulty_level(stdscr):
+     stdscr.addstr('Choose your difficulty level\n')
+     stdscr.addstr('1. Easy\n2. Medium\n3. Hard\n4. Advance\n')
+     stdscr.addstr('Enter Your Choice option: ')
+     stdscr.refresh()
+     key = stdscr.getkey()
+     return key
+    
+
 
 def wpm_test(stdscr):
-    target_text = load_text()
+    target_text = load_text(difficulty_level(stdscr),stdscr)
     current_text = []
     wpm = 0
     start_time = time.time()
@@ -64,8 +93,7 @@ def wpm_test(stdscr):
                      
 
 
-
-# stdscr -> standard screen
+# stdscr -> standard screens
 def main(stdscr):
     #styling terminal
     #init_pair makes pair of foreground and background where an integer represents its ID
